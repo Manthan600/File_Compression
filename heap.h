@@ -1,12 +1,17 @@
-// Structure for tree nodes
-struct Node {
-    char character;
+typedef struct node {
+    char ch;
     int freq;
-    struct Node *l, *r;
-};
- 
-// Structure for min heap
-struct Min_Heap {
+}node;
+
+typedef struct heap
+{
+    node **arr;
     int size;
-    struct Node** array;
-};
+    int rare;
+} heap;
+
+void initHeap(heap *h, int size);
+void insertHeap(heap *h, node *val);
+node *dequeueHeap(heap *h);
+void printHeap(heap *h);
+int isEmptyHeap(heap h);

@@ -1,35 +1,115 @@
+#include "heap.h"
 #include <stdio.h>
 #include <stdlib.h>
-#include "heap.h"
 
-struct Min_Heap *createAndBuildMin_Heap(char arr[], int freq[], int unique_size)
+void initHeap(heap *h, int size)
 {
-    int i;
+    h->arr = (node **)malloc(sizeof(node *) * size);
 
-    // Initializing heap
-    struct Min_Heap *Min_Heap = (struct Min_Heap *)malloc(sizeof(struct Min_Heap));
-    Min_Heap->size = unique_size;
-    Min_Heap->array = (struct Node **)malloc(
-        Min_Heap->size * sizeof(struct Node *));
-
-    // Initializing the array of pointers in minheap.
-    // Pointers pointing to new nodes of character
-    // and their frequency
-    for (i = 0; i < unique_size; ++i)
+    if (!h->arr)
     {
-
-        // newNode is a function
-        // to initialize new node
-        Min_Heap->array[i] = newNode(arr[i], freq[i]);
+        printf("Memory is not allocated !!! \n");
+        return;
     }
 
-    int n = Min_Heap->size - 1;
-    for (i = (n - 1) / 2; i >= 0; --i)
+    h->size = size;
+    h->rare = -1;
+    return;
+}
+
+void insertHeap(heap *h, node *val)
+{
+
+    if (h->size <= h->rare + 1)
     {
 
-        // Standard function for Heap creation
-        Heapify(Min_Heap, i);
+        h->size *= 2;
+        // printf("new size %d\n",h->size);
+        h->arr = realloc(h->arr, sizeof(node *) * h->size);
+        if (h->arr == NULL)
+        {
+            printf("Memory is not allocated !!! \n");
+            return;
+        }
     }
 
-    return Min_Heap;
+    h->rare++;
+    h->arr[h->rare] = val;
+
+    int curr = h->rare;
+    int parent = (curr - 1) / 2;
+
+    while (h->arr[curr]->freq < h->arr[parent]->freq)
+    {
+        // printf("in while\n");
+        node *temp = h->arr[curr];
+        h->arr[curr] = h->arr[parent];
+        h->arr[parent] = temp;
+
+        curr = parent;
+        parent = (curr - 1) / 2;
+    }
+    // printf("out while\n");
+    return;
+}
+
+void heapify(node **arr, int start, int size)
+{
+
+    int curr = start;
+    int left = 2 * start + 1;
+    int right = 2 * start + 2;
+
+    if (left < size && arr[curr]->freq > arr[left]->freq)
+    {
+        curr = left;
+    }
+
+    if (right < size && arr[curr]->freq > arr[right]->freq)
+    {
+        curr = right;
+    }
+
+    if (start != curr)
+    {
+        node *temp = arr[start];
+        arr[start] = arr[curr];
+        arr[curr] = temp;
+
+        heapify(arr, curr, size);
+    }
+
+    return;
+}
+
+node *dequeueHeap(heap *h)
+{
+    if (!isEmptyHeap(*h))
+    {
+        return NULL;
+    }
+
+    node *temp = h->arr[0];
+    h->arr[0] = h->arr[h->rare];
+
+    h->rare--;
+
+    heapify(h->arr, 0, h->rare);
+
+    return temp;
+}
+
+int isEmptyHeap(heap h)
+{
+    h.rare == -1;
+}
+
+void printHeap(heap *h)
+{
+    printf("\n");
+    for (int i = 0; i <= h->rare; i++)
+    {
+        printf("| %c %d | ", h->arr[i]->ch, h->arr[i]->freq);
+    }
+    printf("\n");
 }
